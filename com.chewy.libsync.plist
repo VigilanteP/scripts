@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.chewy.libsync</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>sh</string>
+		<string>/Users/pbergeron/scripts/libsync.sh</string>
+	</array>
+    <key>StandardOutPath</key>
+	<string>/Users/pbergeron/logs/launchctl/libsync.log</string>
+	<key>StartInterval</key>
+    <integer>600</integer>
+</dict>
+</plist>

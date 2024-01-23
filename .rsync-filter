@@ -1,0 +1,55 @@
+# Can't copy CloudStorage to OneDrive or else OneDrive will swallow itself and it hates that
+- CloudStorage
+- OneDrive
+
+# It hates Google too for some reasonx
+- [Gg]oogle*/
+
+# And the machine it's running on
+- AppleInternal/
+
+# It hates iTunes but so does everyone else
+- *[iI][tT]unes*
+
+# It loses its mind in this directory
+- [dD]eveloper
+
+# Non-essential folders with lots of files
+- *[Cc]ache
+- *[Cc]aches
+- *[Ll]og
+- *[Ll]ogs
+- *[cC]ontainers/
+- Saved?Application?State/
+- .DS_Store
+
+# dev artifacts
+- node_modules
+- .gradle
+- build
+- out
+- bin
+- [Dd]ebug
+
+# misc. problematic directories:  
+# - denied permissions
+# - locked/busy files
+# - files with excessively long names
+# - illegal filenames
+- [Tt]rial
+- [Tt]anium
+- [Aa]bsolute
+- hooks/
+- *[:<>\\\"|\?]*
+- FileProvider/
+- Library/**/IndexedDB/
+- Library/**/PServiceWorker/
+- Library/News/
+
+# symlinks that confuse it
+- SingletonCookie
+- SingletonLock
+- SingletonSocket
+- FileProvider/
+- *[aA]pp[gG]ate*/
+- **/v0/v0
