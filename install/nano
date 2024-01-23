@@ -1,9 +1,0 @@
-# Defined interactively
-function bind_bang
-  switch (commandline -t)
-  case "#"
-    commandline -t '#!/bin/sh'; commandline -f repaint
-  case "*"
-    commandline -i !
-  end
-end
