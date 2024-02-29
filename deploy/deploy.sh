@@ -1,7 +1,7 @@
 DEPLOYMENT_PASSWORD=changeme
 
 # apk add nfc-tools  #Alpibe
-apt install nfc-common #Ubuntu
+apt install nfc-common build-essential cmake #Ubuntu
 
 nfspath='truenas:/mnt/media/deploy'
 localpath='/mnt/deploy'
@@ -16,12 +16,13 @@ useradd --uid 1000 --user-group --create-home --groups sudo,media --home-dir /ho
 cp /mnt/deploy/deploy_id_rsa /home/peter/.ssh/id_rsa
 cd /home/peter || exit
 
+su -c peter
 eval "$(ssh-agent)" && ssh-add
-sudo -u peter git clone git@github.com:VigilanteP/config --initial-dir ~/.config
-sudo -u peter git clone git@github.com:VigilanteP/scripts
+git clone git@github.com:VigilanteP/config --initial-dir ~/.config
+git clone git@github.com:VigilanteP/scripts
 # Need to update the nvim submodule too but not sure how to do that now
 
-export DEPLOY_ROOT=~/scripts/deploy
+export DEPLOY_ROOT=/home/peter/scripts/deploy
 
 for script in "$DEPLOY_ROOT"/installers/*; do 
 	$script
