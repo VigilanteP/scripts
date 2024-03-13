@@ -1,25 +1,25 @@
 #!/bin/bash
-if ! type eza 2>&1 1>/dev/null
+if ! type eza
 then
   cargo install eza
 fi
 
-if ! type bat 2>&1 1>/dev/null
+if ! ( type bat || type batcat )
 then
   cargo install bat
 fi
 
-if ! type rg 2>&1 1>/dev/null
+if ! type rg
 then
   cargo install ripgrep
 fi
 
-if ! type zoxide 2>&1 1>/dev/null
+if ! type zoxide
 then
   cargo install zoxide
 fi
 
-if ! type starship 2>&1 1>/dev/null starship
+if ! type starship
 then
   cargo install starship
 fi

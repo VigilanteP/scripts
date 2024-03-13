@@ -1,23 +1,11 @@
 DEPLOYMENT_PASSWORD=changeme
+DEPLOYMENT_DIR=$HOME/deploy
 
-# apk add nfs-tools  #Alpine
-apt -y install libpcre2-32-0 git build-essential exa eza bat fzf fd-find ripgrep zoxide nfs-common #Ubuntu
+for package in libpcre2-32-0 git build-essential exa eza bat fzf fd-find ripgrep zoxide nfs-common
+do
+  apt -y install $package
+done
 
-~/scripts/deploy/installers/fish.sh
-~/scripts/deploy/installers/starship.sh
-~/scripts/deploy/installers/neovim.sh
-
-# Any tools not already found via package manager or installer script can be obtained via rust
-if ! type eza ||
-   ! type zoxide ||
-   ! type bat ||
-   ! type starship ||
-   ! type rg
-then
-  $installers/rust.sh
-  rustup default stable
-  $installers/cargo.sh
-fi
 # Media pool 
 if ! test -e /mnt/media
 then
@@ -33,7 +21,11 @@ fi
 # Make a user to access the share and then clone the /home repos
 groupadd --gid 569 media
 useradd --uid 1000 --user-group --create-home --groups sudo,media --home-dir /home/peter --password $DEPLOYMENT_PASSWORD peter
-cd /home/peter || exit
-chsh -s /usr/bin/fish peter
 
+mkdir /home/peter/deploy
+cp $DEPLOYMENT_DIR/deploy-user.sh /home/peter/deploy/
+cp -r $INSTALLERS_DIR /home/peter/deploy/
+chown -R peter /home/peter/*
+
+cd /home/peter
 echo "Login as new user to and continue with user-deploy.sh"
