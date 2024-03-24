@@ -11,7 +11,7 @@ services:
       - PGID=1000
       - TZ=America/NewYork
       - URL=pberger.online
-      - SUBDOMAINS=www,overseerr
+      - SUBDOMAINS=www,overseerr,plex,ombi,emby
       - VALIDATION=http
     # - CERTPROVIDER= #optional
     # - DNSPLUGIN=cloudflare #optional
