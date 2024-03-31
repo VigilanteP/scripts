@@ -22,7 +22,7 @@ DEPLOYMENT_SOURCE=peter@pberger.online:/home/peter
 DEPLOYMENT_TARGET=/home/$DEPLOYMENT_USER
 INSTALLERS_SOURCE=$DEPLOYMENT_TARGET/installers
 
-for package in libpcre2-32-0 build-essential eza bat fzf fd-find ripgrep zoxide rsync
+for package in libpcre2-32-0 build-essential bat fzf fd-find ripgrep zoxide rsync
 do
   apt -y install $package
 done
@@ -32,6 +32,7 @@ rsync -avz --exclude='.git/' --chown=$DEPLOYMENT_USER:$(id $DEPLOYMENT_USER -gn)
 $INSTALLERS_SOURCE/fish.sh
 $INSTALLERS_SOURCE/starship.sh
 $INSTALLERS_SOURCE/neovim.sh
+$INSTALLERS_SOURCE/eza.sh
 
 chown -R $DEPLOYMENT_USER $DEPLOYMENT_TARGET
 chsh -s /usr/bin/fish $DEPLOYMENT_USER
