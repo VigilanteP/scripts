@@ -7,10 +7,15 @@ read -rs DEPLOYMENT_PASSWORD
 echo "Is this a LAN deployment (y/n):"
 read -r IS_LAN
 
+if ! cat /etc/passwd | grep peter > /dev/null
+then
+  useradd --uid 1000 --user-group --create-home --groups sudo --home-dir /home/$DEPLOYMENT_USER --password $DEPLOYMENT_PASSWORD $DEPLOYMENT_USER
+fi
+
 if $IS_LAN = 'y' -o $IS_LAN = 'Y' 
-# Make a user to access the the zpool
+  # Give the user to access the the zpool
   groupadd --gid 569 media
-  useradd --uid 1000 --user-group --create-home --groups sudo,media --home-dir /home/$DEPLOYMENT_USER --password $DEPLOYMENT_PASSWORD $DEPLOYMENT_USER
+  usermod -a -G media $DEPLOYMENT_USER
 end
 
 DEPLOYMENT_SOURCE=peter@pberger.online:/home/peter
