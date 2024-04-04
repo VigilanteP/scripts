@@ -1,5 +1,9 @@
 #!/usr/bin/fish
 function check_time_over_threshold -a input_time threshold_minutes
+if (not set -q DELUGE_USER) -o (not set -q DELUGE_PASS)
+  echo "set -x DELUGE_USER and DELUGE_PASS dummy."
+
+
   # Skip unsupported formats like 'Never' or '∞'
   if test "$input_time" = 'Never' -o "$input_time" = '∞'
       return 1 # Fail - Unsupported format 
@@ -75,4 +79,4 @@ qbittorrent-nox --save-path=$HOME/torrents/qbittorrent --skip-hash-check --add-p
 
 # clean up
 rm $HOME/torrents/meta/export/*.torrent
-dcli rm $inactiveHashes
+dcli -u $DELUGE_USER -P $DELUGE_PASS 'rm -c $inactiveHashes'

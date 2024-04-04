@@ -13,14 +13,15 @@ then
 fi
 
 if $IS_LAN = 'y' -o $IS_LAN = 'Y' 
+then
   # Give the user to access the the zpool
   groupadd --gid 569 media
   usermod -a -G media $DEPLOYMENT_USER
-end
+fi
 
 DEPLOYMENT_SOURCE=peter@pberger.online:/home/peter
 DEPLOYMENT_TARGET=/home/$DEPLOYMENT_USER
-INSTALLERS_SOURCE=$DEPLOYMENT_TARGET/installers
+INSTALLERS_SOURCE=/root/deploy/installers
 
 for package in libpcre2-32-0 build-essential bat fzf fd-find ripgrep zoxide rsync
 do
