@@ -5,7 +5,7 @@ set torrent_meta_dir /home/peter/torrents/deluge/meta/export
 set hashes (deluge_transfers | deluge_filter_transfers -r 1 -t 30)
 
 # Move to the output directory qbittorrent works from
-dcli move $hashes $torrent_meta_dir 
+dcli move $hashes $qbittorrent_data_dir
 
 # Export metadata restoring original metafile name
 string split $hashes | deluge_export_meta $torrent_meta_dir
