@@ -1,42 +1,50 @@
 echo "Enter username for deployment target:"
 read -r DEPLOYMENT_USER
 
-echo "Enter password for $DEPLOYMENT_USER:"
-read -rs DEPLOYMENT_PASSWORD
-
-echo "Is this a LAN deployment (y/n):"
-read -r IS_LAN
-
-if ! cat /etc/passwd | grep peter > /dev/null
+if ! cat /etc/passwd | grep $DEPLOYMENT_USER > /dev/null
 then
-  useradd --uid 1000 --user-group --create-home --groups sudo --home-dir /home/$DEPLOYMENT_USER --password $DEPLOYMENT_PASSWORD $DEPLOYMENT_USER
+  useradd --user-group --create-home --groups sudo --home-dir /home/$DEPLOYMENT_USER $DEPLOYMENT_USER
 fi
 
-if $IS_LAN = 'y' -o $IS_LAN = 'Y' 
-then
-  # Give the user to access the the zpool
-  groupadd --gid 569 media
-  usermod -a -G media $DEPLOYMENT_USER
-fi
+echo "Setting password for $DEPLOYMENT_USER..."
+passwd $DEPLOYMENT_USER
 
-DEPLOYMENT_SOURCE=peter@pberger.online:/home/peter
-DEPLOYMENT_TARGET=/home/$DEPLOYMENT_USER
-INSTALLERS_SOURCE=/root/deploy/installers
+export DEPLOYMENT_SOURCE_HOST=peter@pberger.online
+export DEPLOYMENT_SOURCE_PATH_PATH=/home/peter
+export DEPLOYMENT_TARGET_PATH=/home/$DEPLOYMENT_USER
 
-for package in libpcre2-32-0 build-essential bat fzf fd-find ripgrep zoxide rsync
+export DEPLOYMENT_DIR=/root/deploy
+export INSTALLERS_DIR=$DEPLOYMENT_DIR/installers
+
+for package in libpcre2-32-0 bat fzf fd-find ripgrep zoxide
 do
   apt -y install $package
 done
 
-rsync -avz --exclude='.git/' --chown=$DEPLOYMENT_USER:$(id $DEPLOYMENT_USER -gn) $DEPLOYMENT_SOURCE/{.config,scripts/deploy/installers} $DEPLOYMENT_TARGET
+$INSTALLERS_DIR/fish.sh
+$INSTALLERS_DIR/starship.sh -y
+$INSTALLERS_DIR/neovim.sh
+$INSTALLERS_DIR/eza.sh
 
-$INSTALLERS_SOURCE/fish.sh
-$INSTALLERS_SOURCE/starship.sh
-$INSTALLERS_SOURCE/neovim.sh
-$INSTALLERS_SOURCE/eza.sh
+echo "Create git repositories? (y/n)"
+read -r answer
 
-chown -R $DEPLOYMENT_USER $DEPLOYMENT_TARGET
+if test $answer = y
+then
+  apt -y install git
+  cp $DEPLOYMENT_DIR/deploy-git.sh /home/$DEPLOYMENT_USER/deploy-git.sh
+  chown $DEPLOYMENT_USER:$DEPLOYMENT_USER /home/$DEPLOYMENT_USER/deploy-git.sh
+
+  sudo -u peter /home/$DEPLOYMENT_USER/deploy-git.sh $DEPLOYMENT_SOURCE_HOST 
+else
+  apt -y install rsync
+  echo "Copying config and scripts from $DEPLOYMENT_SOURCE_HOST..."
+  rsync -avz --exclude='.git/' --chown=$DEPLOYMENT_USER:$(id $DEPLOYMENT_USER -gn) $DEPLOYMENT_SOURCE_HOST:$DEPLOYMENT_SOURCE_PATH/{.config,scripts} $DEPLOYMENT_TARGET
+fi
+
+chown -R $DEPLOYMENT_USER:$DEPLOYMENT_USER /home/$DEPLOYMENT_USER
 chsh -s /usr/bin/fish $DEPLOYMENT_USER
 cd /home/$DEPLOYMENT_USER
 
+sudo -u $DEPLOYMENT_USER fish -c 'setup'
 su $DEPLOYMENT_USER

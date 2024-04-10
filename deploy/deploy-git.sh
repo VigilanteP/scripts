@@ -1,16 +1,24 @@
-echo "If authentication fails ensure that .ssh contains a key which is added to git"
-eval "$(ssh-agent)" && ssh-add
+echo "Creating a new SSH key..."
+ssh-keygen
 
-if type git 2>&1 1>/dev/null
-then
-  sudo apt install git
-fi
+echo "Adding to agent..."
+eval `ssh-agent`
+ssh-add
 
-rm -rf .config scripts
-git clone git@github.com:VigilanteP/config ~/.config
-git clone git@github.com:VigilanteP/scripts
+echo "Adding key to deployment source..."
+ssh-copy-id $1
 
-cd .config || exit
+echo "Adding ssh key to github..."
+ssh $1 "bash -c 'gh ssh-key add <<<\$(echo $(cat ~/.ssh/id_rsa.pub))'"
+echo "Waiting a moment for key to propogate..."
+sleep 5
+
+rm -rf ~/.config ~/scripts
+
+git clone git@github.com:VigilanteP/config ~/.config --depth 1
+git clone git@github.com:VigilanteP/scripts ~/scripts --depth 1
+
+cd ~/.config || exit
 
 git submodule init
 git submodule update
