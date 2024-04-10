@@ -49,4 +49,3 @@ then
   file=$(grep -o '^[^ ]*\.ignore' <<<$ignorefiles)
   ln -s ~/.config/search/ignore/$file ~/.config/search/ignore/active.ignore
 end
-
