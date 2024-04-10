@@ -9,17 +9,11 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=America/NewYork
+      - TZ=America/New_York
       - URL=pberger.online
       - SUBDOMAINS=www,overseerr,plex,ombi,emby
       - VALIDATION=http
-    # - CERTPROVIDER= #optional
-    # - DNSPLUGIN=cloudflare #optional
-    # - DUCKDNSTOKEN=<token> #optional
-    # - EMAIL=<e-mail> #optional
-    # - ONLY_SUBDOMAINS=false #optional
-    # - EXTRA_DOMAINS=<extradomains> #optional
-    # - STAGING=false #optional
+      - EXTRA_DOMAINS=lamei.wang
     volumes:
       - /home/peter/swag:/config
     ports:
