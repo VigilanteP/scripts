@@ -1,8 +1,8 @@
-set qbittorrent_data_dir /media/storage/qbittorrent/downloads/deluge
+set qbittorrent_data_dir /home/peter/torrents/qbittorrent/downloads 
 set torrent_meta_dir /home/peter/torrents/deluge/meta/export
 
 # Get the torrents we want to move via filtering ratio and activity timestamp
-set hashes (deluge_transfers | deluge_filter_transfers -r 1 -t 30)
+set hashes (dcli info --verbose | deluge_filter_transfers -r 1 -t 30)
 
 # Move to the output directory qbittorrent works from
 dcli move $hashes $qbittorrent_data_dir
