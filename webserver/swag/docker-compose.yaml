@@ -11,7 +11,7 @@ services:
       - PGID=1000
       - TZ=America/New_York
       - URL=pberger.online
-      - SUBDOMAINS=www,overseerr,plex,ombi,emby,embz
+      - SUBDOMAINS=www,overseerr,plex,ombi,emby,embz,ollama
       - VALIDATION=http
       - EXTRA_DOMAINS=lamei.wang
     volumes:
