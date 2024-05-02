@@ -1,0 +1,29 @@
+# This file defines which services this server requires from PVE. It has two functions:
+# 
+# 1. Lets PVE know which local hosts we need access to and on which ports. This will let us configure
+#    /etc/nftables.conf correctly
+# 2.Allows PVE to perform manual name resolution for hosts assigned to those services so it can be
+#    passed up to Linode allowing nginx config to use human readable names without requiring mucking
+#    about with DNS settings in Linode.
+#
+#   Service definitions are simply service names, the list of which is maintained on PVE in /etc/services.
+# IP addresses and ports are managed by PVE and transparent to this server. Periodically This server will 
+# invoke a shell script on PVE via SSH which takes this file as input and produces as output a hosts file
+# snippet which provides name resolution for pve hosted services.
+# 
+# This prevents this server from needing to bother with IP addresses which makes it more flexible.
+# In theory we could just use my DNS server to do this completely automatically but I wasn't able to get
+# Linode's own DHCP server to stop overwriting the DNS serve and I can't exactly use my LAN DHCP. This is
+# a janky solution for sure but it will get the job done.
+#
+# Format:
+#   One service name per line. They must match a definition on PVE or they will have no affect and may lead to a name
+# resolution error.
+pve-webui
+speedtest
+emby
+embz
+ombi
+overseerr
+plex
+pihole
