@@ -20,3 +20,17 @@ services:
       - 443:443
       - 80:80 #optional
     restart: unless-stopped
+  ollamauth:
+    image: python:latest
+    container_name: ollamauth
+    restart: unless-stopped
+    volumes:
+      - type: bind
+        source: ./auth-endpoint.py
+        target: /usr/bin/auth-endpoint.py
+      - type: bind
+        source: ./tokeup
+        target: /usr/bin/tokeup
+    ports:
+      - 3000:3000
+    command: sh -c "pip install Flask && python3 /usr/bin/auth-endpoint.py"
