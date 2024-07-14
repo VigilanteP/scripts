@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo mount UUID=137e8014-a7ac-484e-ad20-72cb3a65d72e /mnt/data
+sudo mount /dev/nvme0n1p3 /mnt/data
