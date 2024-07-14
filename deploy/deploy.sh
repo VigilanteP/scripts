@@ -3,35 +3,50 @@ read -r DEPLOYMENT_USER
 
 if ! cat /etc/passwd | grep $DEPLOYMENT_USER > /dev/null
 then
-  useradd --user-group --create-home --groups sudo --home-dir /home/$DEPLOYMENT_USER $DEPLOYMENT_USER
+  useradd --user-group --create-home --groups wheel --home-dir /home/$DEPLOYMENT_USER $DEPLOYMENT_USER
 fi
 
 echo "Setting password for $DEPLOYMENT_USER..."
 passwd $DEPLOYMENT_USER
 
-export DEPLOYMENT_SOURCE_HOST=peter@pberger.online
+export DEPLOYMENT_SOURCE_HOST=peter@octog.online
 export DEPLOYMENT_SOURCE_PATH_PATH=/home/peter
 export DEPLOYMENT_TARGET_PATH=/home/$DEPLOYMENT_USER
 
 export DEPLOYMENT_DIR=/root/deploy
 export INSTALLERS_DIR=$DEPLOYMENT_DIR/installers
 
-for package in libpcre2-32-0 bat fzf fd-find ripgrep zoxide
+for package in fish -32-0 bat fzf fd-find ripgrep zoxide eza neovim
 do
-  apt -y install $package
+  dnf -y install $package
 done
 
-$INSTALLERS_DIR/fish.sh
-$INSTALLERS_DIR/starship.sh -y
-$INSTALLERS_DIR/neovim.sh
-$INSTALLERS_DIR/eza.sh
+if ! type fish
+then
+	$INSTALLERS_DIR/fish.sh
+fi
+
+if ! type starship
+then
+	$INSTALLERS_DIR/starship.sh -y
+fi
+
+if ! type nvim
+then
+	$INSTALLERS_DIR/neovim.sh
+fi
+
+if ! type eza
+then
+	$INSTALLERS_DIR/eza.sh
+fi
 
 echo "Create git repositories? (y/n)"
 read -r answer
 
 if test $answer = y
 then
-  apt -y install git
+  dnf -y install git
   cp $DEPLOYMENT_DIR/deploy-git.sh /home/$DEPLOYMENT_USER/deploy-git.sh
   chown $DEPLOYMENT_USER:$DEPLOYMENT_USER /home/$DEPLOYMENT_USER/deploy-git.sh
 
