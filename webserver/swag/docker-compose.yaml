@@ -11,7 +11,8 @@ services:
       - PGID=1000
       - TZ=America/New_York
       - URL=pberger.online
-      - SUBDOMAINS=www,overseerr,plex,ombi,emby,embz,ollama,mind
+      - EMAIL=Peter.Bergeron@gmail.com
+      - SUBDOMAINS=www,overseerr,plex,ombi,emby,ollama,mind
       - VALIDATION=http
       - EXTRA_DOMAINS=lamei.wang
     volumes:

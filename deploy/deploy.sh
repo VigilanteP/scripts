@@ -9,7 +9,7 @@ fi
 echo "Setting password for $DEPLOYMENT_USER..."
 passwd $DEPLOYMENT_USER
 
-export DEPLOYMENT_SOURCE_HOST=peter@octog.online
+export DEPLOYMENT_SOURCE_HOST=peter@pberger.online
 export DEPLOYMENT_SOURCE_PATH_PATH=/home/peter
 export DEPLOYMENT_TARGET_PATH=/home/$DEPLOYMENT_USER
 
