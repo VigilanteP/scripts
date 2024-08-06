@@ -2,7 +2,6 @@ import logging
 from contextlib import contextmanager
 from enum import Enum
 from deluge_client import DelugeRPCClient
-import datetime
 import configparser
 
 # Load configuration
@@ -34,9 +33,11 @@ class TorrentManager:
         self.minimum_seeding_days_iptorrents =\
             config.getint('Torrents', 'minimum_seeding_days_iptorrents')
         self.minimum_seeding_seconds_torrentleech =\
-            self.minimum_seeding_days_torrentleech * SECONDS_IN_DAY + (2 * SECONDS_IN_HOUR)
+            self.minimum_seeding_days_torrentleech * SECONDS_IN_DAY\
+            + (2 * SECONDS_IN_HOUR)
         self.minimum_seeding_seconds_iptorrents =\
-            self.minimum_seeding_days_iptorrents * SECONDS_IN_DAY + (2 * SECONDS_IN_HOUR)
+            self.minimum_seeding_days_iptorrents * SECONDS_IN_DAY\
+            + (2 * SECONDS_IN_HOUR)
 
     @contextmanager
     def connected_client(self):
@@ -83,9 +84,11 @@ class TorrentManager:
         ratio = round(torrent.get(b'ratio', 0), 2)
         name = torrent.get(b'name').decode()
 
-        minimum_seeding_seconds = self.get_tracker_minimum_seeding_time_seconds(tracker_host)
+        minimum_seeding_seconds =\
+            self.get_tracker_minimum_seeding_time_seconds(tracker_host)
 
-        if self.should_remove_hit_and_run(seeding_time, minimum_seeding_seconds, ratio):
+        if self.should_remove_hit_and_run(
+          seeding_time, minimum_seeding_seconds, ratio):
             self.remove_torrent(client, torrent_id, name, "H&R Seeding Time",
                                 active_time, minimum_seeding_seconds,
                                 ratio, self.safe_ratio_threshold)
@@ -94,16 +97,18 @@ class TorrentManager:
                                 active_time, self.remove_window,
                                 ratio, self.safe_ratio_threshold)
         elif tracker_status == TrackerStatus.UNREGISTERED.value:
-            self.handle_unregistered_torrent(client, torrent_id, name, active_time)
+            self.handle_unregistered_torrent(
+                client, torrent_id, name, active_time)
 
     def get_tracker_minimum_seeding_time_seconds(self, tracker_host):
         if tracker_host == 'tleechreload.org'\
-            or tracker_host == 'torrentleech.org':
+          or tracker_host == 'torrentleech.org':
             return self.minimum_seeding_seconds_torrentleech
         else:
             return self.minimum_seeding_seconds_iptorrents
 
-    def should_remove_hit_and_run(self, seeding_time, minimum_seeding_seconds, ratio):
+    def should_remove_hit_and_run(
+            self, seeding_time, minimum_seeding_seconds, ratio):
         return seeding_time is not None\
             and seeding_time >= minimum_seeding_seconds
 
@@ -154,4 +159,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
