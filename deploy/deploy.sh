@@ -4,21 +4,21 @@ read -r DEPLOYMENT_USER
 if ! cat /etc/passwd | grep $DEPLOYMENT_USER > /dev/null
 then
   useradd --user-group --create-home --groups wheel --home-dir /home/$DEPLOYMENT_USER $DEPLOYMENT_USER
+  echo "Setting password for $DEPLOYMENT_USER..."
+  passwd $DEPLOYMENT_USER
 fi
 
-echo "Setting password for $DEPLOYMENT_USER..."
-passwd $DEPLOYMENT_USER
-
 export DEPLOYMENT_SOURCE_HOST=peter@pberger.online
-export DEPLOYMENT_SOURCE_PATH_PATH=/home/peter
+export DEPLOYMENT_SOURCE_PATH_PATH=/home/$DEPLOYMENT_USER
 export DEPLOYMENT_TARGET_PATH=/home/$DEPLOYMENT_USER
 
-export DEPLOYMENT_DIR=/root/deploy
+export DEPLOYMENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export INSTALLERS_DIR=$DEPLOYMENT_DIR/installers
 
-for package in fish -32-0 bat fzf fd-find ripgrep zoxide eza neovim
+sudo su
+for package in fish curl git gcc bat fzf fd-find ripgrep zoxide eza neovim
 do
-  dnf -y install $package
+  apt -y install $package
 done
 
 if ! type fish
@@ -46,7 +46,6 @@ read -r answer
 
 if test $answer = y
 then
-  dnf -y install git
   cp $DEPLOYMENT_DIR/deploy-git.sh /home/$DEPLOYMENT_USER/deploy-git.sh
   chown $DEPLOYMENT_USER:$DEPLOYMENT_USER /home/$DEPLOYMENT_USER/deploy-git.sh
 
@@ -59,7 +58,6 @@ fi
 
 chown -R $DEPLOYMENT_USER:$DEPLOYMENT_USER /home/$DEPLOYMENT_USER
 chsh -s /usr/bin/fish $DEPLOYMENT_USER
-cd /home/$DEPLOYMENT_USER
 
-sudo -u $DEPLOYMENT_USER fish -c 'setup'
+cd /home/$DEPLOYMENT_USER
 su $DEPLOYMENT_USER

@@ -1,12 +1,12 @@
-# echo "Creating a new SSH key..."
-#ssh-keygen -t ed25519
+echo "Creating a new SSH key..."
+ssh-keygen -t ed25519
 
-#echo "Adding to agent..."
-#eval `ssh-agent`
-#ssh-add
+echo "Adding to agent..."
+eval `ssh-agent`
+ssh-add
 
-# echo "Adding key to deployment source..."
-#ssh-copy-id $1
+echo "Adding key to deployment source..."
+ssh-copy-id $1
 
 echo "Adding ssh key to github..."
 scp ~/.ssh/id_ed25519.pub $1:~/deploykey.pub
@@ -24,3 +24,6 @@ cd ~/.config || exit
 
 git submodule init
 git submodule update
+
+git config --global user.name "Peter Bergeron"
+git config --global user.email "Peter.Bergeron@gmail.com"
