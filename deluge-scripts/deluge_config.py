@@ -1,10 +1,15 @@
 import configparser
+import os
 
 
 class DelugeConfig():
     def __init__(self):
+        configfile = os.environ.get('DELUGE_SCRIPTS_CONFIG')
+        if configfile is None:
+            configfile = 'config.ini'
+
         self.config = configparser.ConfigParser()
-        self.config.read('config.ini')
+        self.config.read(configfile)
 
     def host(self): return self.config.get('Deluge', 'host')
 
