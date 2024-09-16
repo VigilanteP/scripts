@@ -6,7 +6,7 @@ import configparser
 
 # Load configuration
 config = configparser.ConfigParser()
-config.read('/home/peter/deluge-scripts/config.ini')
+config.read('config.ini')
 
 # Constants
 SECONDS_IN_MINUTE = 60
