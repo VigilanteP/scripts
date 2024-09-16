@@ -1,9 +1,8 @@
-from deluge_client import DelugeRPCClient
-import datetime
+from deluge_client_factory import DelugeClientFactory
 
-client = DelugeRPCClient('127.0.0.1', 58320, 'peter', 'CiScO20ps')
+client = DelugeClientFactory().getClient()
 client.connect()
-torrents = client.call('core.get_session_state')
+torrents = client.get_session_state()
 
 for torrent in torrents:
     print(torrent.decode())

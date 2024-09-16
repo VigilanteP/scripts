@@ -1,20 +1,20 @@
-from deluge_client import DelugeRPCClient                                                  
-import sys                                                                                 
-                                                                                           
-client = DelugeRPCClient('127.0.0.1', 58320, 'peter', 'CiScO20ps')                         
-client.connect()                                                                           
+from deluge_client_factory import DelugeClientFactory
+import sys
 
-torrent_id = sys.argv[1]
-fields = [s.encode('utf-8') for s in sys.argv[2:]]
+client = DelugeClientFactory().getClient()
+client.connect()
 
-torrent = client.call('core.get_torrent_status', torrent_id, fields) 
-output = ""                                                                            
+torrent_id = sys.argv[1].encode()
+fields = [s.encode() for s in sys.argv[2:]]
+
+torrent = client.get_torrent_status(torrent_id, fields)
+output = ""
 for field in torrent.keys():
-    output = output + field.decode() + ": "                                            
-    value = torrent.get(field)                                                         
-    if isinstance(value, bytes):                                                       
-        output = output + value.decode()                                               
-    else:                                                                              
-        output = output + str(value)                                                   
-    output = output + " "                                                              
+    output = output + field.decode() + ": "
+    value = torrent.get(field)
+    if isinstance(value, bytes):
+        output = output + value.decode()
+    else:
+        output = output + str(value)
+    output = output + " "
 print(output)
