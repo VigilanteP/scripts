@@ -4,6 +4,7 @@ import logging
 from deluge_config import DelugeConfig
 from ideluge_client import IDelugeClient
 from deluge_client import DelugeRPCClient
+from utils import convert_bytes_to_str
 
 config = DelugeConfig()
 
@@ -41,11 +42,8 @@ class RealDelugeClient(IDelugeClient):
 
     def _save_torrent_status(self, torrent_id, status):
         try:
-            # Convert bytes to strings for JSON serialization
-            status_str = {
-                k.decode(): (v.decode() if isinstance(v, bytes) else v)
-                for k, v in status.items()
-            }
+            # Convert bytes to strings recursively for JSON serialization
+            status_str = convert_bytes_to_str(status)
             # Load existing data if the file exists
             try:
                 with open(config.record_file(), 'r') as f:
@@ -53,7 +51,7 @@ class RealDelugeClient(IDelugeClient):
             except FileNotFoundError:
                 data = {}
             # Update data with the new status
-            data[torrent_id.decode()] = status_str
+            data[convert_bytes_to_str(torrent_id)] = status_str
             # Save data to file
             with open(config.record_file(), 'w') as f:
                 json.dump(data, f, indent=2)

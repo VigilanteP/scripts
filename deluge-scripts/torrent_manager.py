@@ -76,7 +76,7 @@ class TorrentManager:
                 b'ratio',
                 b'name',
                 b'upload_payload_rate',
-                b'total_payload_download'
+                b'total_done'
             ],
         )
 
@@ -86,11 +86,11 @@ class TorrentManager:
         tracker = torrent.get(b'tracker_host')
         ratio = round(torrent.get(b'ratio', 0), 2)
         name = torrent.get(b'name').decode()
-        upload = torrent.get(b'upload_payload_rate')
-        total_download = torrent.get(b'total_payload_download')
+        upload_rate = torrent.get(b'upload_payload_rate')
+        total_download = torrent.get(b'total_done')
 
         # Never remove a torrent that is actively uploading
-        if upload > 1000000:
+        if upload_rate > 1000000:
             return
 
         min_time = self.get_tracker_minimum_seeding_time_seconds(tracker)
