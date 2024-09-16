@@ -30,10 +30,10 @@ class DelugeConfig():
         return self.config.getint('Torrents', 'minimum_seeding_days_iptorrents')
 
     def use_mock(self):
-        return self.config.getboolean('Testing', 'use_mock')
+        return self.config.getboolean('Testing', 'use_mock', fallback=False)
 
     def record(self):
-        return self.config.getboolean('Testing', 'record')
+        return self.config.getboolean('Testing', 'record', fallback=False)
 
     def record_file(self):
-        return self.config.get('Testing', 'record_file')
+        return self.config.get('Testing', 'record_file', fallback='torrent_status.json')
