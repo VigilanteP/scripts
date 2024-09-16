@@ -1,8 +1,8 @@
-!/bin/bash
+#!/bin/bash
 scriptname=deluge-manage
-scriptdir=~/deluge-scripts
+scriptdir=$HOME/deluge-scripts
 scriptfile=$scriptdir/${scriptname}.py
-logdir=~/deluge-scripts/log
+logdir=$scriptdir/log
 logfile_filtered=$logdir/deluge-manage.log
 logfile_verbose=$logdir/deluge-manage-verbose.log
 export DELUGE_SCRIPTS_CONFIG=$scriptdir/config.ini
