@@ -34,8 +34,7 @@ class RealDelugeClient(IDelugeClient):
         return status
 
     def remove_torrent(self, torrent_id, remove_data):
-        # self.client.call('core.remove_torrent', torrent_id, remove_data)
-        logging.info(f"Remove torrent  {torrent_id}")
+        self.client.call('core.remove_torrent', torrent_id, remove_data)
 
     def force_reannounce(self, torrent_ids):
         self.client.call('core.force_reannounce', torrent_ids)
