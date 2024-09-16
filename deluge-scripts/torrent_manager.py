@@ -76,6 +76,7 @@ class TorrentManager:
                 b'ratio',
                 b'name',
                 b'upload_payload_rate',
+                b'total_payload_download'
             ],
         )
 
@@ -86,6 +87,7 @@ class TorrentManager:
         ratio = round(torrent.get(b'ratio', 0), 2)
         name = torrent.get(b'name').decode()
         upload = torrent.get(b'upload_payload_rate')
+        total_download = torrent.get(b'total_payload_download')
 
         # Never remove a torrent that is actively uploading
         if upload > 1000000:
@@ -98,6 +100,8 @@ class TorrentManager:
             or status == TrackerStatus.TRUNCATED.value
         ):
             self.handle_unregistered_torrent(client, torrent_id, name, active_time)
+        elif total_download == 0:
+            self.handle_stalled_torrent(client, torrent_id, name, active_time)
         elif self.should_remove_hit_and_run(seeding_time, min_time, ratio):
             self.remove_torrent(
                 client,
@@ -160,3 +164,14 @@ class TorrentManager:
         else:
             logging.info("Reannounce - %s - %s", name, hash.decode())
             client.force_reannounce([hash])
+
+    def handle_stalled_torrent(self, client, hash, name, active_time):
+        if active_time > self.reannounce_window:
+            logging.info(
+                "Remove stalled torrent (Stalled Max: %s >= %s minutes) - %s - %s",
+                self.format_time(active_time),
+                self.reannounce_window // SECONDS_IN_MINUTE,
+                name,
+                hash.decode(),
+            )
+            client.remove_torrent(hash, True)
