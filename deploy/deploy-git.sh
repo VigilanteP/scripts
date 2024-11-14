@@ -10,7 +10,7 @@ ssh-copy-id $1
 
 echo "Adding ssh key to github..."
 scp ~/.ssh/id_ed25519.pub $1:~/deploykey.pub
-ssh $1 'cat ~/deploykey.pub | gh ssh-key add'
+ssh $1 '/usr/bin/cat ~/deploykey.pub | gh ssh-key add'
 ssh $1 'rm ~/deploykey.pub'
 echo "Waiting a moment for key to propogate..."
 sleep 5

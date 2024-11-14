@@ -3,13 +3,22 @@ read -r DEPLOYMENT_USER
 
 if ! cat /etc/passwd | grep $DEPLOYMENT_USER > /dev/null
 then
-  useradd --user-group --create-home --groups wheel --home-dir /home/$DEPLOYMENT_USER $DEPLOYMENT_USER
+  if cat /etc/group | grep ^wheel:[^:]*:[0-9]*:
+  then 
+    groups=wheel
+  fi
+  if cat /etc/group | grep ^sudo:[^:]*:[0-9]*:
+  then 
+    groups="$groups sudo"
+  fi
+  useradd --user-group --create-home --groups $groups --home-dir /home/$DEPLOYMENT_USER $DEPLOYMENT_USER
   echo "Setting password for $DEPLOYMENT_USER..."
   passwd $DEPLOYMENT_USER
 fi
 
-export DEPLOYMENT_SOURCE_HOST=peter@pberger.online
-export DEPLOYMENT_SOURCE_PATH_PATH=/home/$DEPLOYMENT_USER
+export DEPLOYMENT_SOURCE_USER=peter
+export DEPLOYMENT_SOURCE_HOST=pberger.online
+export DEPLOYMENT_SOURCE_PATH=/home/$DEPLOYMENT_SOURCE_USER
 export DEPLOYMENT_TARGET_PATH=/home/$DEPLOYMENT_USER
 
 export DEPLOYMENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -49,11 +58,11 @@ then
   cp $DEPLOYMENT_DIR/deploy-git.sh /home/$DEPLOYMENT_USER/deploy-git.sh
   chown $DEPLOYMENT_USER:$DEPLOYMENT_USER /home/$DEPLOYMENT_USER/deploy-git.sh
 
-  sudo -u peter /home/$DEPLOYMENT_USER/deploy-git.sh $DEPLOYMENT_SOURCE_HOST 
+  sudo -u $DEPLOYMENT_USER /home/$DEPLOYMENT_USER/deploy-git.sh $DEPLOYMENT_SOURCE_USER'@'$DEPLOYMENT_SOURCE_HOST 
 else
   apt -y install rsync
   echo "Copying config and scripts from $DEPLOYMENT_SOURCE_HOST..."
-  rsync -avz --exclude='.git/' --chown=$DEPLOYMENT_USER:$(id $DEPLOYMENT_USER -gn) $DEPLOYMENT_SOURCE_HOST:$DEPLOYMENT_SOURCE_PATH/{.config,scripts} $DEPLOYMENT_TARGET
+  rsync -avz --exclude='.git/' --chown=$DEPLOYMENT_USER:$(id $DEPLOYMENT_USER -gn) $DEPLOYMENT_SOURCE_USER'@'$DEPLOYMENT_SOURCE_HOST:$DEPLOYMENT_SOURCE_PATH/{.config,scripts} $DEPLOYMENT_TARGET_PATH
 fi
 
 chown -R $DEPLOYMENT_USER:$DEPLOYMENT_USER /home/$DEPLOYMENT_USER
