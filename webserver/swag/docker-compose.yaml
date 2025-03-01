@@ -12,9 +12,8 @@ services:
       - TZ=America/New_York
       - URL=pberger.online
       - EMAIL=Peter.Bergeron@gmail.com
-      - SUBDOMAINS=www,overseerr,plex,ombi,emby,ollama,mind
+      - SUBDOMAINS=www,ombi,emby,ollama,mind
       - VALIDATION=http
-      - EXTRA_DOMAINS=lamei.wang
     volumes:
       - /home/peter/swag:/config
     ports:
