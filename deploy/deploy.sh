@@ -16,9 +16,8 @@ then
   passwd $DEPLOYMENT_USER
 fi
 
-export DEPLOYMENT_SOURCE_USER=peter
-export DEPLOYMENT_SOURCE_HOST=pberger.online
-export DEPLOYMENT_SOURCE_PATH=/home/$DEPLOYMENT_SOURCE_USER
+export DEPLOYMENT_SOURCE_HOST=peter@pberger.online
+export DEPLOYMENT_SOURCE_PATH=/home/$DEPLOYMENT_USER
 export DEPLOYMENT_TARGET_PATH=/home/$DEPLOYMENT_USER
 
 export DEPLOYMENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
