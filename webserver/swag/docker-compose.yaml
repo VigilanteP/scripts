@@ -12,7 +12,7 @@ services:
       - TZ=America/New_York
       - URL=pberger.online
       - EMAIL=Peter.Bergeron@gmail.com
-      - SUBDOMAINS=www,ombi,emby,ollama,mind,mapcraft
+      - SUBDOMAINS=www,ombi,emby,ollama,mind,mcp,mapcraft
       - VALIDATION=http
     volumes:
       - /home/peter/swag:/config
