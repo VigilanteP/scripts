@@ -2,6 +2,7 @@
 
 source /venv/main/bin/activate
 FORGE_DIR=${WORKSPACE}/stable-diffusion-webui-forge
+CIVITAI_TOKEN=9967efe1273b5ca9f91462421137b77a
 
 # Packages are installed after nodes so we can fix them...
 
@@ -15,13 +16,18 @@ PIP_PACKAGES=(
 )
 
 EXTENSIONS=(
-    "adetailer"
-    "sd-civitai-browser-plus"
-    "sd-webui-infinite-image-browsing"
+    "https://github.com/Bing-su/adetailer.git" 
+    "https://github.com/BlafKing/sd-civitai-browser-plus.git" 
+    "https://github.com/zanllp/sd-webui-infinite-image-browsing.git"
 )
 
 CHECKPOINT_MODELS=(
-    "https://civitai.com/api/download/models/798204?type=Model&format=SafeTensor&size=full&fp=fp16"
+    "https://civitai.com/api/download/models/2219949?type=Model&format=SafeTensor&size=pruned&fp=fp8" # RealDream
+    "https://civitai.com/api/download/models/897489?type=Model&format=SafeTensor&size=pruned&fp=fp16" # Afrodite
+)
+
+TEXTENCODER_MODELS=(
+    "https://civitai.com/api/download/models/787954?type=Model&format=SafeTensor&size=full&fp=fp16" # t5-xxl fp16
 )
 
 UNET_MODELS=(
@@ -49,6 +55,11 @@ function provisioning_start() {
     provisioning_get_files \
         "${FORGE_DIR}/models/Stable-diffusion" \
         "${CHECKPOINT_MODELS[@]}"
+
+    provisioning_get_files \
+        "${FORGE_DIR}/models/text_encoder" \
+        "${TEXTENCODER_MODELS[@]}"
+
 
     # Avoid git errors because we run as root but files are owned by 'user'
     export GIT_CONFIG_GLOBAL=/tmp/temporary-git-config
