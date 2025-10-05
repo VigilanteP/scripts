@@ -2,7 +2,6 @@
 
 source /venv/main/bin/activate
 FORGE_DIR=${WORKSPACE}/stable-diffusion-webui-forge
-CIVITAI_TOKEN=9967efe1273b5ca9f91462421137b77a
 
 # Packages are installed after nodes so we can fix them...
 
@@ -49,6 +48,12 @@ CONTROLNET_MODELS=(
 
 function provisioning_start() {
     provisioning_print_header
+
+    # Validate tokens early and warn if missing/invalid (non-fatal)
+    if ! provisioning_has_valid_civitai_token; then
+        printf "Warning: CIVITAI_TOKEN is missing or invalid; private/hidden downloads may fail.\n" >&2
+    fi
+
     provisioning_get_apt_packages
     provisioning_get_extensions
     provisioning_get_pip_packages
@@ -147,7 +152,8 @@ function provisioning_has_valid_civitai_token() {
 
     response=$(curl -o /dev/null -s -w "%{http_code}" -X GET "$url" \
         -H "Authorization: Bearer $CIVITAI_TOKEN" \
-        -H "Content-Type: application/json")
+        -H "Content-Type: application/json" \
+        -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36")
 
     # Check if the token is valid
     if [ "$response" -eq 200 ]; then
@@ -159,16 +165,44 @@ function provisioning_has_valid_civitai_token() {
 
 # Download from $1 URL to $2 file path
 function provisioning_download() {
-    if [[ -n $HF_TOKEN && $1 =~ ^https://([a-zA-Z0-9_-]+\.)?huggingface\.co(/|$|\?) ]]; then
-        auth_token="$HF_TOKEN"
-    elif 
-        [[ -n $CIVITAI_TOKEN && $1 =~ ^https://([a-zA-Z0-9_-]+\.)?civitai\.com(/|$|\?) ]]; then
-        auth_token="$CIVITAI_TOKEN"
+    local url="$1"
+    local dest_dir="$2"
+
+    # Browser-like UA helps with some CDNs/Cloudflare
+    local ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36"
+
+    local auth_token=""
+    local is_hf=0
+    local is_civitai=0
+
+    if [[ -n $HF_TOKEN && $url =~ ^https://([a-zA-Z0-9_-]+\.)?huggingface\.co(/|$|\?) ]]; then
+        auth_token="$HF_TOKEN"; is_hf=1
+    elif [[ -n $CIVITAI_TOKEN && $url =~ ^https://([a-zA-Z0-9_-]+\.)?civitai\.com(/|$|\?) ]]; then
+        auth_token="$CIVITAI_TOKEN"; is_civitai=1
+        # Civitai download endpoints often ignore Authorization headers; append token query param too
+        if [[ $url == *\?* ]]; then
+            url="${url}&token=${CIVITAI_TOKEN}"
+        else
+            url="${url}?token=${CIVITAI_TOKEN}"
+        fi
     fi
-    if [[ -n $auth_token ]];then
-        wget --header="Authorization: Bearer $auth_token" -qnc --content-disposition --show-progress -e dotbytes="${3:-4M}" -P "$2" "$1"
+
+    # Common wget flags
+    local wget_flags=(
+        -qnc
+        --content-disposition
+        --show-progress
+        --tries=3
+        --waitretry=2
+        -e "dotbytes=${3:-4M}"
+        --user-agent="$ua"
+        -P "$dest_dir"
+    )
+
+    if [[ -n $auth_token ]]; then
+        wget --header="Authorization: Bearer $auth_token" "${wget_flags[@]}" "$url"
     else
-        wget -qnc --content-disposition --show-progress -e dotbytes="${3:-4M}" -P "$2" "$1"
+        wget "${wget_flags[@]}" "$url"
     fi
 }
 
