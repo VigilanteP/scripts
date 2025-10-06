@@ -85,7 +85,7 @@ function provisioning_start() {
 
 function provisioning_get_apt_packages() {
     if [[ -n $APT_PACKAGES ]]; then
-            sudo $APT_INSTALL ${APT_PACKAGES[@]}
+            sudo apt install ${APT_PACKAGES[@]}
     fi
 }
 
