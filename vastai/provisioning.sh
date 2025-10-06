@@ -177,10 +177,7 @@ function provisioning_resolve_url() {
     fi
 
     # Follow redirects and print the final URL
-    curl -sSL -o /dev/null -w "%{url_effective}" \
-        -A "$ua" \
-        --connect-timeout 15 --max-time 600 \
-        "$in_url"
+    curl -w "%{url_effective}" --connect-timeout 15 --max-time 600 "$in_url"
 }
 
 # Prefer aria2c for high-throughput downloads; fallback to wget
