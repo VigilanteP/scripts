@@ -177,8 +177,11 @@ function provisioning_resolve_url() {
         fi
     fi
 
-    # Follow redirects and print the final URL
-    curl -w "%{url_effective}" --connect-timeout 15 --max-time 600 "$in_url"
+    # Follow redirects and print only the final URL (single line)
+    curl -sSL -o /dev/null -w "%{url_effective}" \
+        -A "$ua" \
+        --connect-timeout 15 --max-time 600 \
+        "$in_url"
 }
 
 # Prefer aria2c for high-throughput downloads; fallback to wget
@@ -195,11 +198,15 @@ function provisioning_download() {
         auth_header=("--header=Authorization: Bearer $CIVITAI_TOKEN")
     fi
 
-    # Resolve final URL (especially important for Civitai -> CDN)
+    # Resolve final URL; use that only (to generate CDN-style aria2c command)
     local final_url
     final_url=$(provisioning_resolve_url "$url")
-    if [[ -z "$final_url" ]]; then
+    if [[ -z "$final_url" || ! "$final_url" =~ ^https?:// ]]; then
         final_url="$url"
+    fi
+    # Drop auth header for non-civitai/huggingface hosts (presigned CDN URLs)
+    if [[ ! "$final_url" =~ ^https://([a-zA-Z0-9_-]+\.)?civitai\.com(/|$|\?) && ! "$final_url" =~ ^https://([a-zA-Z0-9_-]+\.)?huggingface\.co(/|$|\?) ]]; then
+        auth_header=()
     fi
 
     if command -v aria2c >/dev/null 2>&1; then
