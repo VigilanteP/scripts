@@ -85,7 +85,14 @@ function provisioning_start() {
 
 function provisioning_get_apt_packages() {
     if [[ -n $APT_PACKAGES ]]; then
+<<<<<<< HEAD
             sudo apt install ${APT_PACKAGES[@]}
+||||||| parent of 57e356d (Fix provisioning again)
+            sudo $APT_INSTALL ${APT_PACKAGES[@]}
+=======
+            #sudo apt install ${APT_PACKAGES[@]}
+            apt install aria2
+>>>>>>> 57e356d (Fix provisioning again)
     fi
 }
 
