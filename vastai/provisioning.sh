@@ -178,8 +178,7 @@ function provisioning_resolve_url() {
     fi
 
     # Follow redirects and print only the final URL (single line)
-    curl -sSL -o /dev/null -w "%{url_effective}" \
-        -A "$ua" \
+    curl -I -L -o /dev/null -w "%{url_effective}" \
         --connect-timeout 15 --max-time 600 \
         "$in_url"
 }
