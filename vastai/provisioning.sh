@@ -86,7 +86,7 @@ function provisioning_start() {
 function provisioning_get_apt_packages() {
     if [[ -n $APT_PACKAGES ]]; then
             #sudo apt install ${APT_PACKAGES[@]}
-            apt install aria2
+            apt install -y aria2
     fi
 }
 
