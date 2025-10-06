@@ -6,8 +6,7 @@ FORGE_DIR=${WORKSPACE}/stable-diffusion-webui-forge
 # Packages are installed after nodes so we can fix them...
 
 APT_PACKAGES=(
-    #"package-1"
-    #"package-2"
+    "aria2"
 )
 
 PIP_PACKAGES=(
@@ -15,9 +14,9 @@ PIP_PACKAGES=(
 )
 
 EXTENSIONS=(
-    "https://github.com/Bing-su/adetailer.git" 
-    "https://github.com/BlafKing/sd-civitai-browser-plus.git" 
-    "https://github.com/zanllp/sd-webui-infinite-image-browsing.git"
+    "https://github.com/Bing-su/adetailer" 
+    "https://github.com/BlafKing/sd-civitai-browser-plus" 
+    "https://github.com/zanllp/sd-webui-infinite-image-browsing"
 )
 
 CHECKPOINT_MODELS=(
@@ -163,46 +162,73 @@ function provisioning_has_valid_civitai_token() {
     fi
 }
 
-# Download from $1 URL to $2 file path
+# Resolve final CDN URL for Civitai (and apply token if needed)
+function provisioning_resolve_url() {
+    local in_url="$1"
+    local ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36"
+
+    # If Civitai and we have a token, append token query param to maximize compatibility
+    if [[ -n $CIVITAI_TOKEN && $in_url =~ ^https://([a-zA-Z0-9_-]+\.)?civitai\.com(/|$|\?) ]]; then
+        if [[ $in_url == *\?* ]]; then
+            in_url="${in_url}&token=${CIVITAI_TOKEN}"
+        else
+            in_url="${in_url}?token=${CIVITAI_TOKEN}"
+        fi
+    fi
+
+    # Follow redirects and print the final URL
+    curl -sSL -o /dev/null -w "%{url_effective}" \
+        -A "$ua" \
+        --connect-timeout 15 --max-time 600 \
+        "$in_url"
+}
+
+# Prefer aria2c for high-throughput downloads; fallback to wget
 function provisioning_download() {
     local url="$1"
     local dest_dir="$2"
 
-    # Browser-like UA helps with some CDNs/Cloudflare
     local ua="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36"
 
-    local auth_token=""
-    local is_hf=0
-    local is_civitai=0
-
+    local auth_header=()
     if [[ -n $HF_TOKEN && $url =~ ^https://([a-zA-Z0-9_-]+\.)?huggingface\.co(/|$|\?) ]]; then
-        auth_token="$HF_TOKEN"; is_hf=1
+        auth_header=("--header=Authorization: Bearer $HF_TOKEN")
     elif [[ -n $CIVITAI_TOKEN && $url =~ ^https://([a-zA-Z0-9_-]+\.)?civitai\.com(/|$|\?) ]]; then
-        auth_token="$CIVITAI_TOKEN"; is_civitai=1
-        # Civitai download endpoints often ignore Authorization headers; append token query param too
-        if [[ $url == *\?* ]]; then
-            url="${url}&token=${CIVITAI_TOKEN}"
-        else
-            url="${url}?token=${CIVITAI_TOKEN}"
-        fi
+        auth_header=("--header=Authorization: Bearer $CIVITAI_TOKEN")
     fi
 
-    # Common wget flags
-    local wget_flags=(
-        -qnc
-        --content-disposition
-        --show-progress
-        --tries=3
-        --waitretry=2
-        -e "dotbytes=${3:-4M}"
-        --user-agent="$ua"
-        -P "$dest_dir"
-    )
+    # Resolve final URL (especially important for Civitai -> CDN)
+    local final_url
+    final_url=$(provisioning_resolve_url "$url")
+    if [[ -z "$final_url" ]]; then
+        final_url="$url"
+    fi
 
-    if [[ -n $auth_token ]]; then
-        wget --header="Authorization: Bearer $auth_token" "${wget_flags[@]}" "$url"
+    if command -v aria2c >/dev/null 2>&1; then
+        aria2c -x16 -s16 -k1M --file-allocation=none \
+               --allow-overwrite=true --auto-file-renaming=false \
+               --check-certificate=true --follow-metalink=true \
+               --continue=true --retry-wait=2 --max-tries=5 \
+               --user-agent="$ua" "${auth_header[@]}" \
+               --dir="$dest_dir" \
+               "$final_url"
     else
-        wget "${wget_flags[@]}" "$url"
+        # Fallback to wget
+        local wget_flags=(
+            -qnc
+            --content-disposition
+            --show-progress
+            --tries=3
+            --waitretry=2
+            -e "dotbytes=${3:-4M}"
+            --user-agent="$ua"
+            -P "$dest_dir"
+        )
+        if [[ -n ${auth_header[0]} ]]; then
+            wget "${auth_header[@]}" "${wget_flags[@]}" "$final_url"
+        else
+            wget "${wget_flags[@]}" "$final_url"
+        fi
     fi
 }
 
