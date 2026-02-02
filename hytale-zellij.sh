@@ -1,4 +1,5 @@
 #!/bin/bash
-zellij delete-session -f hytale 2>/dev/null
+set -euo pipefail
+zellij delete-session -f hytale 2>/dev/null || true
 zellij attach --create-background hytale
-zellij run -- bash /home/peter/scripts/hytale-server.sh
+zellij --session hytale run -- /usr/local/bin/hytale-start

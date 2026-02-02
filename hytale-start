@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd /opt/hytale
+if [[ ! -f /opt/hytale/Server/HytaleServer.jar ]]; then
+  echo "Missing /opt/hytale/Server/HytaleServer.jar"
+  exit 1
+fi
+if [[ ! -f /opt/hytale/Assets.zip ]]; then
+  echo "Missing /opt/hytale/Assets.zip"
+  exit 1
+fi
+exec java -XX:AOTCache=/opt/hytale/Server/HytaleServer.aot -jar /opt/hytale/Server/HytaleServer.jar --assets /opt/hytale/Assets.zip
